@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require "logbook-cli"
+
+Logbook::CLI::App.start(ARGV)
