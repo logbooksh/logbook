@@ -26,5 +26,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "guard-rspec", "~> 4.7"
 
   spec.add_runtime_dependency "logbook-ruby", "~> 0.1"
-  spec.add_runtime_dependency "thor", "~> 0.20"
 end

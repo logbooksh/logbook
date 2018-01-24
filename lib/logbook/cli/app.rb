@@ -1,7 +1,7 @@
-require "thor"
-
 module Logbook::CLI
-  class App < Thor
-
+  class App
+    def self.stats(options)
+      puts "Hello #{options["per-task"]}"
+    end
   end
 end
