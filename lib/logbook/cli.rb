@@ -1,3 +1,5 @@
+require "logbook"
+
 module Logbook
   module CLI
     require "logbook/cli/app"

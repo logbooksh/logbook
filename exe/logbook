@@ -1,5 +1,15 @@
 #!/usr/bin/env ruby
 
-require "logbook-cli"
+require "logbook/cli"
 
-Logbook::CLI::App.start(ARGV)
+USAGE = <<~DOC
+logbook stats <file>...
+DOC
+
+case ARGV.shift
+when "stats"
+  paths = ARGV.map { |path| File.expand_path(path) }
+  Logbook::CLI::App.stats(paths)
+else
+  puts USAGE
+end
