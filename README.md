@@ -1,35 +1,57 @@
-# Logbook
+# logbook-cli
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/logbook`. To experiment with that code, run `bin/console` for an interactive prompt.
+`logbook-cli` is a Ruby gem providing the `logbook` executable which offers
+various commands to process logbook files.
 
-TODO: Delete this and the text above, and describe your gem
+## On Logbooks
+
+Logbooks are plain text files used to capture thoughts and activities as they
+occur throughout the day without interrupting flow as much as possible.
+
+The rather minimalistic syntax is optimized for readability and quick editing
+without the need for anything fancier than a good text editor.
+
+To find out more about logbooks and the logbook file format, check out the
+documentation of [the vim plugin](https://github.com/logbooksh/vim-logbook).
 
 ## Installation
 
-Add this line to your application's Gemfile:
+`logbook-cli` is packaged as a Ruby gem and requires Ruby 2.4+.
 
-```ruby
-gem 'logbook'
+```console
+$ gem install logbook-cli
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install logbook
 
 ## Usage
 
-TODO: Write usage instructions here
+Once installed, you have access to the `logbook` executable:
 
-## Development
+```console
+$ logbook
+logbook stats <file>...
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+### stats
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+The `stats` command reads from one or more files and prints out the amount of
+time logged in each file:
 
-## Contributing
+```console
+$ logbook stats *.logbook
+2018-01-18.logbook: 1h47min
+2018-01-19.logbook: 2h28min
+2018-01-20.logbook: 2h54min
+2018-01-21.logbook: 2h48min
+2018-01-22.logbook: 1h24min
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/logbook.
+## Changelog
+
+### 0.1
+
+  * Add `stats` command showing the number of hours logged in a given file
+
+## License
+
+`logbook-cli` is licensed under the Apache License 2.0.
+See [`LICENSE`](LICENSE) for more information.
