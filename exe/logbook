@@ -1,15 +1,25 @@
 #!/usr/bin/env ruby
 
-require "logbook/cli"
+require "optparse"
+require_relative "../lib/logbook/cli"
 
 USAGE = <<~DOC
 logbook stats <file>...
 DOC
 
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{USAGE}"
+
+  opts.on("--per-task", "Determine duration of each task in the file") do
+    options[:per_task] = true
+  end
+end.parse!
+
 case ARGV.shift
 when "stats"
   paths = ARGV.map { |path| File.expand_path(path) }
-  Logbook::CLI::App.stats(paths)
+  Logbook::CLI::App.stats(paths, options)
 else
   puts USAGE
 end
