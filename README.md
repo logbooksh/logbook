@@ -28,7 +28,7 @@ Once installed, you have access to the `logbook` executable:
 
 ```console
 $ logbook
-logbook stats <file>...
+logbook stats [--per-task] <file>...
 ```
 
 ### stats
@@ -38,14 +38,33 @@ time logged in each file:
 
 ```console
 $ logbook stats *.logbook
-2018-01-18.logbook: 1h47min
-2018-01-19.logbook: 2h28min
-2018-01-20.logbook: 2h54min
-2018-01-21.logbook: 2h48min
-2018-01-22.logbook: 1h24min
+2018-03-04.logbook: 4 h 11 min
+2018-03-08.logbook: 55 min
+2018-03-09.logbook: 42 min
+2018-03-10.logbook: 1 h 14 min
+```
+
+The `--per-task` option can be used to break down the amount of time logged per
+task in each file:
+
+```console
+$ logbook stats --per-task *.logbook
+2018-03-04.logbook: 4 h 11 min
+                    Add user registration: 4 h 11 min
+2018-03-08.logbook: 55 min
+                    Add --per-task option: 32 min
+                    Parse logbook files that do not end with an empty line: 23 min
+2018-03-09.logbook: 42 min
+                    Add --per-task option: 42 min
+2018-03-10.logbook: 1 h 14 min
+                    Add --per-task option: 1 h 14 min
 ```
 
 ## Changelog
+
+### 0.1.1
+
+  * Add `--per-task` option
 
 ### 0.1
 

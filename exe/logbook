@@ -4,14 +4,14 @@ require "optparse"
 require_relative "../lib/logbook/cli"
 
 USAGE = <<~DOC
-logbook stats <file>...
+logbook stats [--per-task] <file>...
 DOC
 
 options = {}
 OptionParser.new do |opts|
   opts.banner = "Usage: #{USAGE}"
 
-  opts.on("--per-task", "Determine duration of each task in the file") do
+  opts.on("--per-task", "Break down each file per task.") do
     options[:per_task] = true
   end
 end.parse!
