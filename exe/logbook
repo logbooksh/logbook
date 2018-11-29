@@ -28,6 +28,7 @@ end.parse!
 case ARGV.shift
 when "stats"
   paths = ARGV.map { |path| File.expand_path(path) }
+  paths =  Dir.glob("*.{lbk,logbook}") if paths.empty?
   Logbook::CLI::App.stats(paths, options)
 else
   puts USAGE
