@@ -7,12 +7,21 @@ USAGE = <<~DOC
 logbook stats [--per-task] <file>...
 DOC
 
-options = {}
+options = {tag_filters: Set.new(), property_filters: {}}
 OptionParser.new do |opts|
   opts.banner = "Usage: #{USAGE}"
 
   opts.on("--per-task", "Break down each file per task.") do
     options[:per_task] = true
+  end
+
+  opts.on("-tTAG", "--tag TAG", "Filter tasks with the given tag.") do |tag|
+    options[:tag_filters] << tag
+  end
+
+  opts.on("-pNAME:VALUE", "--property NAME:VALUE", "Filter tasks with the given property.") do |filter|
+    name, value = filter.split(":")
+    options[:property_filters][name] = value
   end
 end.parse!
 
