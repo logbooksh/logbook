@@ -2,46 +2,73 @@ require "set"
 
 module Logbook::CLI
   class App
-    def self.stats(paths, options = {})
-      new.stats(paths, options)
+    MIN_COLUMN_SIZE = 4
+
+    def self.tasks(paths, options = {})
+      new.tasks(paths, options)
     end
 
-    def stats(paths, options)
-      return if paths.empty?
+    def tasks(paths, options)
+      default_options = {tags: []}
+      options = default_options.merge(options)
 
-      paths.select { |path| File.file?(path) }.each do |path|
-        name = File.basename(path)
-        contents = File.read(path)
-
-        if page = Logbook::Builder.build(contents)
-          tasks = filter_tasks(page.tasks, options)
-          total_duration = tasks.map { |task| task.logged_time.minutes.to_i }.sum
-          next unless total_duration > 0
-
-          puts "#{name}: #{format_duration(total_duration)}"
-
-          if options[:per_task]
-            tasks.each do |task|
-              task_duration = task.logged_time.minutes.to_i
-              next unless task_duration > 0
-
-              puts " " * (name.length + 1) + " #{task.title}: #{format_duration(task_duration)}"
-            end
+      if options[:status]
+        options[:status] =
+          case options[:status]
+          when "todo"
+            Logbook::Task::Status::TODO
+          when "ongoing"
+            Logbook::Task::Status::ONGOING
+          when "done"
+            Logbook::Task::Status::DONE
+          else
+            puts "Warning: unknown task status #{options[:status]}"
           end
+      end
+
+      pages_by_file = parse_files(paths)
+      warn_about_parsing_errors(pages_by_file)
+
+      tasks_by_file = pages_by_file.reject { |_, page| page.nil? }.map do |file_name, page|
+        tasks = page.tasks.select { |task| options[:tags].subset?(task.tags) }
+        tasks = tasks.select { |task| task.status == options[:status] } if options[:status]
+        tasks = tasks.select { |task| (options[:has_property] - task.properties.keys).empty? }
+        tasks = tasks.select { |task| options[:properties] <= task.properties }
+
+        [file_name, tasks]
+      end.select { |_, tasks| tasks.any? }.to_h
+
+      max_file_name_length = tasks_by_file.keys.map(&:length).max || 0
+      max_task_title_length = tasks_by_file.values.flatten.map(&:title).map(&:length).max || 0
+      file_name_col_length = [MIN_COLUMN_SIZE, max_file_name_length].max
+      task_title_col_length = [MIN_COLUMN_SIZE, max_task_title_length].max
+
+      puts "FILE" + " " * (file_name_col_length - 4 + 4) +
+        "TASK" + " " * (task_title_col_length - 4 + 4) +
+        "TIME LOGGED"
+
+      tasks_by_file.each do |file_name, tasks|
+        tasks.each do |task|
+          puts file_name + " " * (file_name_col_length - file_name.length + 4) +
+            task.title + " " * (task_title_col_length - task.title.length + 4) +
+            format_duration(task.logged_time.minutes.to_i)
         end
       end
     end
 
     private
-    def filter_tasks(tasks, options)
-      tasks.select { |task| match_filters?(task, options) }
+    def parse_files(paths)
+      paths.select { |path| File.file?(path) }.map do |path|
+        name = File.basename(path)
+        contents = File.read(path)
+        [name, Logbook::Builder.build(contents)]
+      end.to_h
     end
 
-    def match_filters?(task, options)
-      tags = Set.new(task.tags.map(&:label))
-      properties = task.properties.values.map { |p| [p.name, p.value] }.to_h
-
-      options[:tag_filters].subset?(tags) && options[:property_filters] <= properties
+    def warn_about_parsing_errors(pages_by_file)
+      pages_by_file.select { |file_name, page| page.nil? }.each do |file_name, page|
+        puts "Could not parse #{file_name}. Skipping..."
+      end
     end
 
     def format_duration(duration)

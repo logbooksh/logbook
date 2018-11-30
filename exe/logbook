@@ -4,32 +4,36 @@ require "optparse"
 require_relative "../lib/logbook/cli"
 
 USAGE = <<~DOC
-logbook stats [--per-task] <file>...
+logbook tasks [-p KEY:VALUE] [-t TAG] [-s todo|ongoing|done] <file>...
 DOC
 
-options = {tag_filters: Set.new(), property_filters: {}}
+options = {tags: Set.new(), properties: {}, has_property: []}
 OptionParser.new do |opts|
   opts.banner = "Usage: #{USAGE}"
 
-  opts.on("--per-task", "Break down each file per task.") do
-    options[:per_task] = true
+  opts.on("-t", "--tag TAG", "Select tasks with the given tag.") do |label|
+    options[:tags] << label
   end
 
-  opts.on("-tTAG", "--tag TAG", "Filter tasks with the given tag.") do |tag|
-    options[:tag_filters] << tag
+  opts.on("-s", "--status STATUS", "Select tasks with the given status.") do |status|
+    options[:status] = status
   end
 
-  opts.on("-pNAME:VALUE", "--property NAME:VALUE", "Filter tasks with the given property.") do |filter|
-    name, value = filter.split(":")
-    options[:property_filters][name] = value
+  opts.on("-p", "--property KEY[:VALUE]", "Select tasks with the given property") do |property|
+    if property.include?(":")
+      name, value = property.split(":")
+      options[:properties][name] = value || ""
+    else
+      options[:has_property].push(property)
+    end
   end
 end.parse!
 
 case ARGV.shift
-when "stats"
+when "tasks"
   paths = ARGV.map { |path| File.expand_path(path) }
   paths =  Dir.glob("*.{lbk,logbook}") if paths.empty?
-  Logbook::CLI::App.stats(paths, options)
+  Logbook::CLI::App.tasks(paths, options)
 else
   puts USAGE
 end
