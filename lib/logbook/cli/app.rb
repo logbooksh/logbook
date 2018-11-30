@@ -14,18 +14,17 @@ module Logbook::CLI
         contents = File.read(path)
 
         if page = Logbook::Builder.build(contents)
-          tasks = filter_tasks(page.tasks.values, options)
-          total_duration = tasks.map { |task| task.time_logged.minutes.to_i }.sum
+          tasks = filter_tasks(page.tasks, options)
+          total_duration = tasks.map { |task| task.logged_time.minutes.to_i }.sum
           next unless total_duration > 0
 
           puts "#{name}: #{format_duration(total_duration)}"
 
           if options[:per_task]
             tasks.each do |task|
-              task_duration = task.time_logged.minutes.to_i
+              task_duration = task.logged_time.minutes.to_i
               next unless task_duration > 0
 
-              tags = task.properties.values.select { |p| p.is_tag? }.map { |t| "#" + t.name }.join(" ")
               puts " " * (name.length + 1) + " #{task.title}: #{format_duration(task_duration)}"
             end
           end
@@ -39,8 +38,8 @@ module Logbook::CLI
     end
 
     def match_filters?(task, options)
-      tags = Set.new(task.properties.values.select(&:is_tag?).map(&:name))
-      properties = task.properties.values.reject(&:is_tag?).map { |p| [p.name, p.value] }.to_h
+      tags = Set.new(task.tags.map(&:label))
+      properties = task.properties.values.map { |p| [p.name, p.value] }.to_h
 
       options[:tag_filters].subset?(tags) && options[:property_filters] <= properties
     end
